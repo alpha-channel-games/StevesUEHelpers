@@ -11,6 +11,7 @@
 
 #include "StevesGameSubsystem.generated.h"
 
+class UPersistenceSystem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInputModeChanged, int, PlayerIndex, EInputMode, InputMode);
 
 UCLASS(Config=Game)
@@ -94,6 +95,9 @@ protected:
 protected:
     TSharedPtr<FInputModeDetector> InputDetector;
     FFocusSystem FocusSystem;
+    
+    UPROPERTY(BlueprintReadOnly)
+    UPersistenceSystem* PersistenceSystem;
 
     UPROPERTY(BlueprintReadWrite)
     UUiTheme* DefaultUiTheme;

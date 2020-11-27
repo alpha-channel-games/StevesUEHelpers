@@ -7,6 +7,7 @@
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerInput.h"
+#include "StevesSave/PersistenceSystem.h"
 #include "StevesUI/KeySprite.h"
 
 //PRAGMA_DISABLE_OPTIMIZATION
@@ -21,13 +22,16 @@ void UStevesGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
     auto VC = Cast<UStevesGameViewportClientBase>(GI->GetGameViewportClient());
     if (!VC)
         UE_LOG(LogStevesUEHelpers, Warning, TEXT("Your GameViewportClient needs to be set to a subclass of UStevesGameViewportClientBase if you want full functionality!"))
-    
+
+    PersistenceSystem = NewObject<UPersistenceSystem>(this);
+    PersistenceSystem->Initialise(GI);
 }
 
 void UStevesGameSubsystem::Deinitialize()
 {
     Super::Deinitialize();
     DestroyInputDetector();
+    PersistenceSystem->Deinitialise();
 }
 
 
