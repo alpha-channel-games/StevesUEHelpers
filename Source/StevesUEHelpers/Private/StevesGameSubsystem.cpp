@@ -24,7 +24,7 @@ void UStevesGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
         UE_LOG(LogStevesUEHelpers, Warning, TEXT("Your GameViewportClient needs to be set to a subclass of UStevesGameViewportClientBase if you want full functionality!"))
 
     PersistenceSystem = NewObject<UPersistenceSystem>(this);
-    PersistenceSystem->Initialise(GI);
+    PersistenceSystem->Initialise();
 }
 
 void UStevesGameSubsystem::Deinitialize()

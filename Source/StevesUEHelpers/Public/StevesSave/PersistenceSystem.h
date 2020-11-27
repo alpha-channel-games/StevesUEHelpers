@@ -27,7 +27,6 @@ class UPersistenceSystem : public UObject
 {
     GENERATED_BODY()
 protected:
-    UGameInstance* GameInstance;
     FDelegateHandle OnPreloadMapHandle;
     FDelegateHandle OnPostLoadMapHandle;
 
@@ -48,7 +47,7 @@ protected:
     void UnsubscribeFromStreamingEvents();
 
 public:
-    void Initialise(UGameInstance* GI);
+    void Initialise();
     void Deinitialise();
 
 };

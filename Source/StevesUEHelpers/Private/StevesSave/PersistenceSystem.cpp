@@ -4,20 +4,16 @@
 
 DEFINE_LOG_CATEGORY(LogPersistenceSystem)
 
-void UPersistenceSystem::Initialise(UGameInstance* GI)
+void UPersistenceSystem::Initialise()
 {
-    if (GI == GameInstance)
-        return;
-
     OnPreloadMapHandle = FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &UPersistenceSystem::OnPreLoadMap);
     OnPostLoadMapHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &UPersistenceSystem::OnPostLoadMap);
 
-    GameInstance = GI;
-    if (IsValid(GameInstance) && IsValid(GameInstance->GetWorld()))
+    if (IsValid(GetWorld()))
     {
         // In PIE, this will be the startup level. In standalone, it will be just a placeholder level e.g. /Temp/Untitled_0.Untitled:PersistentLevel
-        auto Lvl = GameInstance->GetWorld()->GetCurrentLevel();
-        UE_LOG(LogPersistenceSystem, Warning, TEXT("Startup Persistent Level: %s"), *Lvl->GetPathName());
+        auto Lvl = GetWorld()->GetCurrentLevel();
+        UE_LOG(LogPersistenceSystem, Warning, TEXT("Startup Persistent Level: %s"), *GetWorld()->GetMapName());
 
         if (!Lvl->GetPathName().StartsWith("/Temp/Untitled"))
             SubscribeToStreamingEvents();
@@ -27,10 +23,10 @@ void UPersistenceSystem::Initialise(UGameInstance* GI)
 
 void UPersistenceSystem::SubscribeToStreamingEvents()
 {
-    if (!IsValid(GameInstance) || !IsValid(GameInstance->GetWorld()))
+    if (!IsValid(GetWorld()) )
         return;
     
-    for (auto Stream : GameInstance->GetWorld()->GetStreamingLevels())
+    for (auto Stream : GetWorld()->GetStreamingLevels())
     {
         Stream->OnLevelLoaded.AddDynamic(this, &UPersistenceSystem::OnStreamLevelLoad);
         Stream->OnLevelUnloaded.AddDynamic(this, &UPersistenceSystem::OnStreamLevelUnload);
@@ -44,10 +40,10 @@ void UPersistenceSystem::SubscribeToStreamingEvents()
 
 void UPersistenceSystem::UnsubscribeFromStreamingEvents()
 {
-    if (!IsValid(GameInstance) || !IsValid(GameInstance->GetWorld()))
+    if (!IsValid(GetWorld()))
         return;
 
-    for (auto Stream : GameInstance->GetWorld()->GetStreamingLevels())
+    for (auto Stream : GetWorld()->GetStreamingLevels())
     {
         Stream->OnLevelLoaded.RemoveDynamic(this, &UPersistenceSystem::OnStreamLevelLoad);
         Stream->OnLevelUnloaded.RemoveDynamic(this, &UPersistenceSystem::OnStreamLevelUnload);
@@ -67,7 +63,7 @@ void UPersistenceSystem::Deinitialise()
 void UPersistenceSystem::OnPreLoadMap(const FString& Name)
 {
     // Here we're given the persistent map that's about to be loaded, although current map is still in memory
-    UE_LOG(LogPersistenceSystem, Warning, TEXT("OnPreLoadMap: New %s Old %s"), *Name, *GameInstance->GetWorld()->GetCurrentLevel()->GetPathName());
+    UE_LOG(LogPersistenceSystem, Warning, TEXT("OnPreLoadMap: New %s Old %s"), *Name, *GetWorld()->GetMapName());
 
     // Because PostLoad occurs AFTER BeginPlay, on OnStreamLevelLoad happens BEFORE BeginPlay, we have to
     // do loading
@@ -79,7 +75,7 @@ void UPersistenceSystem::OnPostLoadMap(UWorld* World)
 {
     // Here the new persistent map has been loaded
     // Sadly this is AFTER BeginPlay has occurred on actors in a persistent level
-    UE_LOG(LogPersistenceSystem, Warning, TEXT("OnPostLoadMap: %s"), *World->GetCurrentLevel()->GetPathName());
+    UE_LOG(LogPersistenceSystem, Warning, TEXT("OnPostLoadMap: %s"), *World->GetMapName());
     SubscribeToStreamingEvents();
 }
 
