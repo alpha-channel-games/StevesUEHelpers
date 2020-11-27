@@ -11,6 +11,8 @@ class STEVESUEHELPERS_API UPersistentActorComponent : public UActorComponent
 public:
 
 
+    virtual bool IsPostLoadThreadSafe() const override;
+    virtual void PostLoad() override;
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 };
